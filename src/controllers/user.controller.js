@@ -1,5 +1,8 @@
 import { asynchandler } from "../utils/asyncHandler.js"
 import {User} from "../models/user.models.js"
+import {ApiError} from "../utils/ApiError.js"
+import {ApiResponse} from "../utils/ApiResponse.js"
+import { uploadOnCloudinary } from "../utils/cloudinary.js"
 
 
 const registerUser = asynchandler(async (req , res)=>{
@@ -15,12 +18,12 @@ const registerUser = asynchandler(async (req , res)=>{
     // }
 
     //another way 
-    if([fullname , email . password , username].some((field)=> field?.trim() === "")){
+    if([fullname , email , password , username].some((field)=> field?.trim() === "")){
         throw new ApiError(400 , "All fields are required")
     }
 
      // to check if user already exist 
-     const existedUser = User.findOne(
+     const existedUser = await User.findOne(
         {
             $or: [
                 {username},
@@ -36,13 +39,17 @@ const registerUser = asynchandler(async (req , res)=>{
     //check for images we get req.body all the data but not related to files to get that multer has req.files 
 
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
+
+    console.log(avatarLocalPath, "avartar")
 
     if(!avatarLocalPath){
       throw new  ApiError(400 , "Avatar File is required")
     }
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
+
+    console.log(avatar , "afu")
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
     if(!avatar){

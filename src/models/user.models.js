@@ -30,8 +30,7 @@ const userSchema = new mongoose.Schema(
            required: true
         },
         coverImage:{
-            type: String ,
-            required: true
+            type: String 
         },
         password:{
             type: String,
@@ -51,12 +50,11 @@ timestamps: true
 )
 
 //try not to use arrow function because it does not have access to this keyword
-userSchema.pre("save" , async function(next){
-  if(!this.isModified("password")) return next();
-
-  this.password = await bcrypt.hash(this.password ,10 )
-  next();
-})
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return;
+  
+    this.password = await bcrypt.hash(this.password, 10);
+  });
 
 //creating our own custom method 
 userSchema.methods.isPasswordCorrect = async function(password){
