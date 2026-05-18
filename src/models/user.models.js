@@ -50,6 +50,7 @@ timestamps: true
     }
 )
 
+//try not to use arrow function because it does not have access to this keyword
 userSchema.pre("save" , async function(next){
   if(!this.isModified("password")) return next();
 
@@ -64,7 +65,7 @@ return await bcrypt.compare(password , this.password)
 
 userSchema.methods.generateAccessToken = function(){
     jwt.sign({
-        _id: this.id,
+        _id: this._id,
         email: this.email,
         username: this.email,
         fullname: this.fullname
@@ -75,11 +76,11 @@ userSchema.methods.generateAccessToken = function(){
 
 userSchema.methods.generateRefreshToken = function(){
     jwt.sign({
-        _id: this.id,
+        _id: this._id,
     } , process.env.REFRESH_TOKEN_SECRET, {
         expiresIn : process.env.REFRESH_TOKEN_EXPIRY
     })
 }
 
 
-const User = mongoose.model("User" , userSchema)
+export const User = mongoose.model("User" , userSchema)
